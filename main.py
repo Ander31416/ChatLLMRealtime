@@ -13,7 +13,7 @@ while True:
     while not os.path.exists("/home/usuario/Escritorio/Visual_Studio_Code/chatVoiceRealTime/input.mp3"):
         pass
 
-    time.sleep(0.1)
+    time.sleep(0.08)
 
     Input = speech_to_text("/home/usuario/Escritorio/Visual_Studio_Code/chatVoiceRealTime/input.mp3")
 
