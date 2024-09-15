@@ -38,62 +38,6 @@ def process_audio(q):
             os.remove(filename)
         q.task_done()
 
-'''
-def record_audio():
-    chunk = 1024  # Audio chunk size
-    sample_format = pyaudio.paInt16  # 16-bit depth
-    channels = 1  # Mono audio
-    rate = 44100  # Sample rate (44.1 kHz)
-    filename = "output.wav"  # Output file name
-
-    stop_recording = False  # Flag to indicate whether to stop recording
-
-    p = pyaudio.PyAudio()
-
-    print("Press 'a' to start recording. You can press 'a' again to stop.")
-    
-    def on_press_event(event):
-        nonlocal stop_recording
-        if event.name == 'a':
-            stop_recording = not stop_recording
-            if stop_recording:
-                print("Stop recording in 3 seconds...")
-                p.terminate()  # This is the place to stop the PyAudio
-            else:
-                print("Start recording...")
-
-    # Start a separate thread to listen for keyboard events
-    listener = keyboard.Listener(on_press=on_press_event)
-    listener.start()
-
-    stream = p.open(format=sample_format, channels=channels, rate=rate,
-                    frames_per_buffer=chunk, input=True)
-
-    frames = []
-
-    try:
-        while True:
-            data = stream.read(chunk)
-            frames.append(data)
-            if stop_recording:
-                break  # Exit the loop
-
-    finally:
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-
-        # Save the recorded audio to a file
-        with wave.open(filename, 'wb') as wf:
-            wf.setnchannels(channels)
-            wf.setsampwidth(p.get_sample_size(sample_format))
-            wf.setframerate(rate)
-            wf.writeframes(b''.join(frames))
-
-        print(f"Audio saved as {filename}")
-        listener.stop()  # Stop the keyboard listener
-'''
-
 def record_audio_realtime():
     """Record audio in real time and transcribe it."""
     chunk = 1024  # Audio chunk size
