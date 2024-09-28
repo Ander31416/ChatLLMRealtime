@@ -5,13 +5,20 @@ from pydub import AudioSegment
 from pydub.playback import play
 from groq import Groq
 import tempfile
-import os
 import threading
 import queue
 from playsound import playsound
-import elevenlabs
+import speech_recognition as sr
+import constants
+from dotenv import load_dotenv
+from elevenlabs.client import ElevenLabs
+from elevenlabs import stream
+import os
 
-client = Groq(api_key="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")
+# Load environment variables from .env file
+load_dotenv()
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def speech_to_text(filename):
     """Transcribes audio from a file using Groq."""
@@ -94,17 +101,19 @@ def generate_speech_with_GTTS(text, lang='en'):
     tts = gTTS(text=text, lang=lang)
 
     # Save the speech to a temporary file
-    file_path = '/home/usuario/Escritorio/Visual_Studio_Code/chatVoiceRealTime/output.mp3'
+    file_path = get_file_path('output.mp3')
     tts.save(file_path)
 
     # Load the audio file
     sound = AudioSegment.from_mp3(file_path)
 
+    #play(sound)
+
     # Speed up the audio
     faster_sound = sound._spawn(sound.raw_data, overrides={"frame_rate": int(sound.frame_rate * 1.25)})
 
     # Export the faster audio to a new file
-    faster_file_path = '/home/usuario/Escritorio/Visual_Studio_Code/chatVoiceRealTime/output_faster.mp3'
+    faster_file_path = get_file_path('output_faster.mp3')
     faster_sound.export(faster_file_path, format="mp3")
 
     # Play the faster audio
@@ -112,36 +121,22 @@ def generate_speech_with_GTTS(text, lang='en'):
 
 def generate_speech_with_ElevenLabs(text):
 
-    #elevenlabs.set_api_key("sk_5655b3202e7271731ac114e39ab4e89d6c15079fe8799986")
-
-    '''
-    voice = elevenlabs.Voice(
-        voice = "Bella",
-        settings = elevenlabs.VoiceSettings(
-            stability = 0,
-            similarity_boost = 0.75
-        )
-    )'''
-
-    '''
-    elevenlabs.play(
-        elevenlabs.generate(
-            text = text,
-            voice = "Bella",
-            model = "eleven_multilingual_v2"
-        )
-    )'''
-
-    # Generate and stream the audio without saving
-    audio_stream = elevenlabs.generate(
-        text=text,
-        voice_id=elevenlabs.voices()[0]["voice_id"],  # Replace with actual voice ID
-        optimize_streaming_latency=1,  # Adjust for lower latency if needed
-        output_format="mp3_44100_128"  # You can adjust the format
+    client = ElevenLabs(
+      api_key=os.environ.get("ELEVENLABS_API_KEY"), # Defaults to ELEVEN_API_KEY
     )
-    elevenlabs.stream(audio_stream)  # Play the audio stream in real-time
+
+    audio_stream = client.generate(
+      text=text,
+      stream=True,
+      model="eleven_multilingual_v2"
+    )
+
+    stream(audio_stream)
 
 def text_to_speech(TTS_tool, text, language):
+
+    text = text.replace("*", "")
+
     if TTS_tool == "Google TTS":
         generate_speech_with_GTTS(text, language)
     
@@ -150,12 +145,15 @@ def text_to_speech(TTS_tool, text, language):
 
 def text_to_speech_by_chunks(TTS_tool, text, language):
     try: 
-        text = text.replace("*", "")
         for sentence in text.split("."):
             print(sentence)
             text_to_speech(TTS_tool, sentence, language)
     except:
         print("Texto terminado")
+
+def get_file_path(input):
+    return os.path.abspath(__file__).replace("utils.py", input)
+
 
 # Call the function
 #record_audio()

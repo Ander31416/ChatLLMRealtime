@@ -10,22 +10,52 @@ class Chat:
     def init(self):
         self.chat = []
 
-    def add_system_message(self, message):
-        self.chat.append({
-            "role": "system",
-            "content": message
+    def add_system_message(self, image_base64, text):
+        self.chat.append(
+        {
+                "role": "system",
+                "content": [
+                        {
+                                "type": "text",
+                                "text": text
+                        },
+                        {
+                                "type": "image_url",
+                                "image_url": {
+                                        "url": "data:image/jpeg;base64," + image_base64
+                                }
+                        }
+                ]
         })
 
-    def add_assistant_message(self, message):
-        self.chat.append({
-            "role": "assistant",
-            "content": message
+    def add_assistant_message(self, text):
+        self.chat.append(
+        {
+                "role": "assistant",
+                "content": [
+                        {
+                                "type": "text",
+                                "text": text
+                        }
+                ]
         })
 
-    def add_user_message(self, message):
-        self.chat.append({
-            "role": "user",
-            "content": message
+    def add_user_message(self, image_base64, text):
+        self.chat.append(
+        {
+                "role": "user",
+                "content": [
+                        {
+                                "type": "text",
+                                "text": text
+                        },
+                        {
+                                "type": "image_url",
+                                "image_url": {
+                                        "url": "data:image/jpeg;base64," + image_base64
+                                }
+                        }
+                ]
         })
 
     def get_chat(self):
